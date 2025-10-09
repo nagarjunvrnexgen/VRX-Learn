@@ -1,0 +1,19 @@
+[project]
+name = "vrx-learn"
+version = "0.1.0"
+description = "This is the secure learning management application for VRNeXGen Courses"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "psycopg2-binary>=2.9.10",
+    "pydantic[email]>=2.11.9",
+    "pydantic-settings>=2.11.0",
+    "fastapi[all]>=0.118.0",
+    "argon2-cffi>=25.1.0",
+    "passlib[argon]>=1.7.4",
+    "ruff>=0.13.3",
+    "google-auth>=2.41.1",
+    "google-api-python-client>=2.184.0",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.2",
+]
