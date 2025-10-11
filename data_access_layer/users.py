@@ -2,6 +2,30 @@ import schemas
 from database import db_manager, SingleResult
 
 
+
+
+def get_user_by_email(email_id: str) -> SingleResult:
+    sql: str = "select* from users where email_id = %(email_id)s;"
+    user: SingleResult = db_manager.execute_select_statement(
+        sql,
+        {"email_id": email_id},
+        fetch_all = False
+    )
+
+    return user
+
+
+
+def get_user_by_id(id: int) -> SingleResult:
+    sql: str = "select* from users where id = %(id)s;"
+    user: SingleResult = db_manager.execute_select_statement(
+        sql,
+        {"id": id},
+        fetch_all = False
+    )
+
+    return user 
+
 def get_user(
     user_detail: (
         schemas.UserGetById | 

@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     database_user: str
     database_port: int 
 
+    jwt_secret_key: str
+    jwt_token_expire_minutes: int 
+    algorithm: str = "HS256"
+
 
     class Config:
         env_file = ".env"

@@ -37,7 +37,19 @@ class UserId(BaseModel):
     id: int
 
 
+class UserLogin(BaseModel):
+    email_id: str
+    password: str
 
+
+
+class TokenData(BaseModel):
+    user_id: int
+    role: Literal["trainee", "admin"]
+
+class Token(BaseModel):
+    access_token: str 
+    token_type: str = "Bearer"
 
 # """
 # =========================================================================================
