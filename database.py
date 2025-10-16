@@ -8,11 +8,11 @@ from contextlib import contextmanager
 
 
 CONNECTION_PARAMS: dict[str, Any] = {
-    "database": settings.database_name,
-    "user": settings.database_user,
-    "password": settings.database_password,
-    "port": settings.database_port,
-    "host": settings.database_host,
+    "database": settings.database.name,
+    "user": settings.database.user,
+    "password": settings.database.password,
+    "port": settings.database.port,
+    "host": settings.database.host,
     "cursor_factory": RealDictCursor
 }
 

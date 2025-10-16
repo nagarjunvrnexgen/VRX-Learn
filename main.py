@@ -5,6 +5,7 @@ from presentation_layer.module_routes import module_router
 from presentation_layer.resource_routes import resource_router
 from presentation_layer.enrollment_routes import enrollment_router
 from presentation_layer.auth import auth_router
+from presentation_layer.video_stream_routes import video_streaming_router
 from contextlib import asynccontextmanager
 from database import db_manager
 
@@ -34,7 +35,7 @@ app.include_router(module_router)
 app.include_router(resource_router)
 app.include_router(enrollment_router)
 app.include_router(auth_router)
-
+app.include_router(video_streaming_router)
 
 
 
