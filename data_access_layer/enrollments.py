@@ -1,22 +1,25 @@
-from database import db_manager, SingleResult
+from database import db_manager, SingleResult, DBResult
+from psycopg2.extras import RealDictRow
 import schemas
 
 
 
 
-def get_enrollement_by_id(enrollment: schemas.EnrollmentId):
+def get_enrollement_by_id(id: int) -> SingleResult:
 
     sql: str = "select  * from enrollments where id = %(id)s;"
     requested_enrollment: SingleResult = db_manager.execute_select_statement(
         sql,
-        enrollment.model_dump(),
+        {"id": id},
         fetch_all = False
     )
 
     return requested_enrollment
 
 
-def get_enrollment_by_user_course(enrollment: schemas.EnrollmentLookUp):
+def get_enrollment_by_user_course(
+    enrollment: schemas.EnrollmentLookUp
+) -> SingleResult:
     
     sql: str =  "select * from enrollments where course_id = %(course_id)s and user_id = %(user_id)s;"
 
@@ -30,7 +33,7 @@ def get_enrollment_by_user_course(enrollment: schemas.EnrollmentLookUp):
 
 
 
-def get_all_enrollments():
+def get_all_enrollments() -> DBResult:
     
     sql: str =  """select * from enrollments;"""
     
@@ -40,7 +43,9 @@ def get_all_enrollments():
 
 
 
-def insert_enrollment(enrollment: schemas.EnrollmentCreate):
+def insert_enrollment(
+    enrollment: schemas.EnrollmentCreate
+) -> RealDictRow:
     
     sql: str = """
         insert into enrollments(
@@ -62,13 +67,13 @@ def insert_enrollment(enrollment: schemas.EnrollmentCreate):
     return new_enrollment    
 
 
-def delete_enrollment(enrollment: schemas.EnrollmentId):
+def delete_enrollment(id: int) -> SingleResult:
 
     sql: str = "delete from enrollments where id = %(id)s returning *;"
 
     deleted_enrollment = db_manager.execute_sql_command(
         sql,
-        enrollment.model_dump(),
+        {"id": id},
         fetch = True
     )
 

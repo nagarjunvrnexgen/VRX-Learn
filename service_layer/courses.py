@@ -1,11 +1,15 @@
 import data_access_layer.courses as course_repo
 import schemas
 import exceptions
+from psycopg2.extras import RealDictRow
 
 
 
-def add_course(course: schemas.CourseCreate):
+def add_course(
+    course: schemas.CourseCreate
+) -> RealDictRow:
 
+    # Need to implement duplicate course name check.
     try: 
         new_course = course_repo.insert_course(course)
         return new_course
@@ -15,31 +19,35 @@ def add_course(course: schemas.CourseCreate):
 
 
 
-def remove_course(course: schemas.CourseID):
+def remove_course(
+    id: int
+) -> RealDictRow:
 
-    deleted_course = course_repo.delete_course(course)
+    deleted_course = course_repo.delete_course(id)
     
     if not deleted_course:
         raise exceptions.CourseNotFoundError(
-            "No course found with this ID"
+            f"Course with ID {id} does not exist"
         )
     
     return deleted_course
 
 
-def fetch_course(course: schemas.CourseID):
+def fetch_course_by_id(
+    id: int
+) -> RealDictRow:
 
-    requested_course = course_repo.get_course(course)
+    requested_course = course_repo.get_course_by_id(id)
 
     if not requested_course:
         raise exceptions.CourseNotFoundError(
-            f"No course found with this ID: {course.id}"
+            f"Course with ID {id} does not exist"
         )
     
     return requested_course
 
 
-def list_all_courses():
+def list_all_courses() -> list[RealDictRow]:
     
     courses = course_repo.get_all_courses()
 

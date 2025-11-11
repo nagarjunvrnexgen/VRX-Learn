@@ -1,21 +1,24 @@
-from database import db_manager, SingleResult
+from database import db_manager, SingleResult,DBResult
+from psycopg2.extras import RealDictRow
 import schemas
 
 
 
-def get_all_resources():
+def get_all_resources() -> DBResult:
+    
     sql: str = """select * from resources;"""
     resources = db_manager.execute_select_statement(sql)
 
     return resources
 
 
-def get_resource(resource: schemas.ResourceId):
+def get_resource_by_id(id: int) -> SingleResult:
     
     sql: str = "select * from resources where id = %(id)s;"
 
     requested_resource = db_manager.execute_select_statement(
-        sql, resource.model_dump(),
+        sql, 
+        {"id": id},
         fetch_all = False
     )
 
@@ -23,7 +26,10 @@ def get_resource(resource: schemas.ResourceId):
 
 
 
-def insert_resource(resource: schemas.ResourceCreate):
+def insert_resource(
+    resource: schemas.ResourceCreate
+) -> RealDictRow:
+    
     sql: str = """
         insert into resources(
             name, type, file_type, url, module_id
@@ -46,11 +52,12 @@ def insert_resource(resource: schemas.ResourceCreate):
 
 
 
-def delete_resource(resource: schemas.ResourceId):
+def delete_resource(id: int) -> SingleResult:
     sql: str = """delete from resources where id = %(id)s returning *;"""
 
     deleted_resource = db_manager.execute_sql_command(
-        sql, resource.model_dump(),
+        sql, 
+        {"id": id},
         fetch = True
     )
 

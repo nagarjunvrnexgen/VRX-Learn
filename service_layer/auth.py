@@ -6,23 +6,25 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from configs import settings
 from typing import TypedDict
+from psycopg2.extras import RealDictRow
 
 
-
-def authenticate_user(user: schemas.UserLogin):
+def authenticate_user(
+    user: schemas.UserLogin
+) -> RealDictRow:
 
     # Check for user existance.
     requested_user = user_repo.get_user_by_email(user.email_id)
 
     if not requested_user:
         raise exceptions.UserNotFoundError(
-            "No user found with this Email."
+            f"The user with email id {user.email_id} does not exist"
         )
     
     # Check for password.
     if not utils.verify_hash_password(user.password, requested_user.get("password", "")):
         raise exceptions.PasswordMismatchError(
-            "Incorrect password"
+            "The password provided is incorrect"
         )
     
     return requested_user
@@ -33,7 +35,7 @@ def authenticate_user(user: schemas.UserLogin):
 def create_access_token(
     payload: schemas.TokenData, 
     expires_delta: timedelta | None = None
-):
+) -> str:
     
     data = payload.model_dump().copy()
 
@@ -79,7 +81,9 @@ def decode_access_token(token: str) -> dict:
         return payload
 
     except jwt.PyJWTError:
-        raise exceptions.TokenInvalidOrExpiredError()
+        raise exceptions.TokenInvalidOrExpiredError(
+            "The token is invalid or has expired"
+        )
 
 
 

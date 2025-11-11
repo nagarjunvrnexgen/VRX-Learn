@@ -26,15 +26,6 @@ class UserUpdate(BaseModel):
     password: str
 
 
-class UserGetById(BaseModel):
-    id: int 
-
-class UserGetByEmail(BaseModel):
-    email_id: EmailStr
-
-
-class UserId(BaseModel):
-    id: int
 
 
 class UserLogin(BaseModel):
@@ -70,9 +61,6 @@ class Course(CourseCreate):
     created_at: datetime
 
 
-class CourseID(BaseModel):
-    id: int 
-
 
     
 class ModuleCreate(BaseModel):
@@ -80,8 +68,10 @@ class ModuleCreate(BaseModel):
     course_id: int 
 
 
-class ModuleId(BaseModel):
+
+class Module(ModuleCreate):
     id: int 
+    created_at: datetime
 
 
 class ResourceCreate(BaseModel):
@@ -91,10 +81,12 @@ class ResourceCreate(BaseModel):
     url: str 
     module_id: int
 
-class ResourceId(BaseModel):
-    id: int
 
 
+class Resource(ResourceCreate):
+    id: int 
+    created_at: datetime
+    
 
 class EnrollmentCreate(BaseModel):
 
@@ -105,8 +97,11 @@ class EnrollmentCreate(BaseModel):
 class EnrollmentLookUp(EnrollmentCreate):
     pass
 
-class EnrollmentId(BaseModel):
-    id: int    
+
+class Enrollment(EnrollmentCreate):
+    id: int 
+    enrolled_at: datetime
+
 
 
 

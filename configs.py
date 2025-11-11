@@ -50,12 +50,23 @@ class GoogleCredentialSettings(BaseSettings):
     )
 
 
+class CORSSettings(BaseSettings):
+    
+    allowed_origins: list[str]
+    
+    model_config = SettingsConfigDict(
+        env_file = ".env",
+        env_prefix = "CORS_",
+        extra = "ignore"
+    )
+    
+
 class Settings(BaseModel):
 
     database: DatabaseSettings = Field(default_factory = DatabaseSettings)
     jwt: JWTSettings = Field(default_factory = JWTSettings)
     google_credentials: GoogleCredentialSettings = Field(default_factory = GoogleCredentialSettings)
-
+    cors: CORSSettings = Field(default_factory = CORSSettings)
 
 settings = Settings()
 print("API Keys Initialized Successfully.")

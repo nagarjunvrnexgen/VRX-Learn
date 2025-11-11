@@ -8,6 +8,9 @@ from presentation_layer.auth import auth_router
 from presentation_layer.video_stream_routes import video_streaming_router
 from contextlib import asynccontextmanager
 from database import db_manager
+from fastapi.middleware.cors import CORSMiddleware
+from configs import settings
+
 
 
 
@@ -29,12 +32,21 @@ app = FastAPI(
 )
 
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = settings.cors.allowed_origins,
+    allow_credentials = True,
+    allow_headers = ["*"],
+    allow_methods = ["*"]
+)
+
+
+app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(course_router)
 app.include_router(module_router)
 app.include_router(resource_router)
 app.include_router(enrollment_router)
-app.include_router(auth_router)
 app.include_router(video_streaming_router)
 
 

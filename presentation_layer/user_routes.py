@@ -1,21 +1,31 @@
-from fastapi import HTTPException, APIRouter, status
+from fastapi import HTTPException, APIRouter, status, Security
 import schemas
 import service_layer.users as user_services
 import exceptions
+from presentation_layer.auth import get_current_admin_from_cookie
+
+
 
 user_router = APIRouter(
     prefix ="/users",
-    tags = ["Users"] 
+    tags = ["Users"],
+    dependencies = [Security(get_current_admin_from_cookie)] 
 )
 
 
-@user_router.get("/", response_model = list[schemas.User])
+@user_router.get(
+    "/", 
+    response_model = list[schemas.User]
+)
 async def users():
     return user_services.list_all_users()
 
 
 
-@user_router.get("/{user_id}")
+@user_router.get(
+    "/{user_id}", 
+    response_model = schemas.User
+)
 async def get_user(user_id: int):
     
     try:
@@ -26,12 +36,16 @@ async def get_user(user_id: int):
     except exceptions.UserNotFoundError: 
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
-            detail = f"No user found with this Id: {user_id}"
+            detail = f"User with Id {user_id} does not exist"
         )
     
 
 
-@user_router.post("/new", response_model = schemas.User)
+@user_router.post(
+    "/", 
+    response_model = schemas.User,
+    status_code = status.HTTP_201_CREATED
+)
 async def create_new_user(user: schemas.UserCreate):
    
     try:
@@ -42,28 +56,29 @@ async def create_new_user(user: schemas.UserCreate):
     except exceptions.PasswordMismatchError:
         raise HTTPException(
             status_code = status.HTTP_400_BAD_REQUEST,
-            detail = "Password and confirm password should match!."
+            detail = "Password and Confirm Password do not match"
         )
     
     except exceptions.EmailAlreadyExist:
         raise HTTPException(
             status_code = status.HTTP_409_CONFLICT,
-            detail = "Email already exist with this email id."
+            detail = f"Email already exists with this email {user.email_id}"
         )
     
 
-@user_router.delete("/{user_id}")
+@user_router.delete(
+    "/{user_id}",
+    status_code = status.HTTP_204_NO_CONTENT
+)
 async def delete_user(user_id: int):
     try:
-        deleted_user =  user_services.remove_user(
-            schemas.UserId(id = user_id)
-        )
-        return deleted_user
+        deleted_user = user_services.remove_user(user_id)
+        return
     
     except exceptions.UserNotFoundError: 
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
-            detail = "No user found with this Id"
+            detail = f"User with Id {user_id} does not exist"
         )
     
 

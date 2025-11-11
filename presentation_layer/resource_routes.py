@@ -1,39 +1,48 @@
-from fastapi import APIRouter, HTTPException, status 
+from fastapi import APIRouter, HTTPException, status, Security 
 import service_layer.resources as resource_services
 import schemas
 import exceptions
-
+from presentation_layer.auth import get_current_admin_from_cookie
 
 resource_router = APIRouter(
     prefix = "/resources",
-    tags = ["Resources"]
+    tags = ["Resources"],
+    dependencies = [Security(get_current_admin_from_cookie)]
 )
 
 
-@resource_router.get("/")
+@resource_router.get(
+    "/",
+    response_model = list[schemas.Resource],
+)
 async def get_resources():    
     resources = resource_services.list_all_resource()
     return resources
 
 
 
-@resource_router.get("/{resource_id}")
+@resource_router.get(
+    "/{resource_id}",
+    response_model = schemas.Resource
+)
 async def get_resource(resource_id: int):
     
     try: 
-        resource = resource_services.fetch_resource(
-            schemas.ResourceId(id = resource_id)
-        )
+        resource = resource_services.fetch_resource_by_id(resource_id)
         return resource
     
     except exceptions.ResourceNotFoundError:
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
-            detail = f"No resource found with this Id: {resource_id}"
+            detail = f"Resource with Id {resource_id} does not exist"
         )
 
 
-@resource_router.post("/")
+@resource_router.post(
+    "/", 
+    response_model = schemas.Resource,
+    status_code = status.HTTP_201_CREATED
+)
 async def create_resource(resource: schemas.ResourceCreate):
     
     try: 
@@ -45,22 +54,24 @@ async def create_resource(resource: schemas.ResourceCreate):
     except exceptions.CourseModuleNotFoundError:
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
-            detail = f"No Module found with this Id: {resource.module_id}"
+            detail = f"Module with Id {resource.module_id} does not exist"
         )
     
 
-@resource_router.delete("/{resource_id}")
+@resource_router.delete(
+    "/{resource_id}",
+    status_code = status.HTTP_204_NO_CONTENT
+)
 async def delete_resource(resource_id: int):
     
     try:
-        deleted_resource = resource_services.remove_resource(
-            schemas.ResourceId(id = resource_id)
-        )
-        return deleted_resource 
+        
+        deleted_resource = resource_services.remove_resource(resource_id)
+        return 
     
     except exceptions.ResourceNotFoundError:
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
-            detail = f"No resource found with this Id: {resource_id}"
+            detail = f"Resource with Id {resource_id} does not exist"
         )
 

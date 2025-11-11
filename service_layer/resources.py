@@ -2,20 +2,24 @@ import data_access_layer.resources as resource_repo
 import data_access_layer.modules as module_repo
 import schemas
 import exceptions
+from psycopg2.extras import RealDictRow
 
 
-def list_all_resource():
+
+def list_all_resource() -> list[RealDictRow]:
     resources = resource_repo.get_all_resources()
     return resources
 
 
-def fetch_resource(resource: schemas.ResourceId):
+def fetch_resource_by_id(
+    id: int
+) -> RealDictRow:
     
-    requested_resource = resource_repo.get_resource(resource)
+    requested_resource = resource_repo.get_resource_by_id(id)
 
     if not requested_resource:
         raise exceptions.ResourceNotFoundError(
-            f"No resource found with this Id: {resource.id}"
+            f"Resource with ID {id} does not exist"
         ) 
     
     return requested_resource
@@ -23,16 +27,18 @@ def fetch_resource(resource: schemas.ResourceId):
 
 
 
-def add_resource(resource: schemas.ResourceCreate):
+def add_resource(
+    resource: schemas.ResourceCreate
+) -> RealDictRow:
     
     # Check the module exist. 
-    module = module_repo.get_module(
-        schemas.ModuleId(id = resource.module_id)
+    module = module_repo.get_module_by_id(
+        resource.module_id
     )
 
     if not module:
         raise exceptions.CourseModuleNotFoundError(
-            f"No Module found with this Id: {resource.module_id}"
+            f"Module with ID {resource.module_id} does not exist"
         )
     
     new_resource = resource_repo.insert_resource(resource)
@@ -41,13 +47,15 @@ def add_resource(resource: schemas.ResourceCreate):
 
 
 
-def remove_resource(resource: schemas.ResourceId):
+def remove_resource(
+    id: int
+) -> RealDictRow:
 
-    deleted_resource = resource_repo.delete_resource(resource)
+    deleted_resource = resource_repo.delete_resource(id)
 
     if not deleted_resource:
         raise exceptions.ResourceNotFoundError(
-            f"No resource found with this Id: {resource.id}"
+            f"Resource with ID {id} does not exist"
         )
     
     return deleted_resource

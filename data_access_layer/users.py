@@ -1,14 +1,21 @@
 import schemas
-from database import db_manager, SingleResult
+from database import db_manager, SingleResult, DBResult
+from psycopg2.extras import RealDictRow
 
 
+def standardize_email(email: str) -> str:
+    
+    return email.strip().lower()
 
 
-def get_user_by_email(email_id: str) -> SingleResult:
+def get_user_by_email(
+    email_id: str
+) -> SingleResult:
+    
     sql: str = "select* from users where email_id = %(email_id)s;"
     user: SingleResult = db_manager.execute_select_statement(
         sql,
-        {"email_id": email_id},
+        {"email_id": standardize_email(email_id)},
         fetch_all = False
     )
 
@@ -17,6 +24,7 @@ def get_user_by_email(email_id: str) -> SingleResult:
 
 
 def get_user_by_id(id: int) -> SingleResult:
+    
     sql: str = "select* from users where id = %(id)s;"
     user: SingleResult = db_manager.execute_select_statement(
         sql,
@@ -26,29 +34,10 @@ def get_user_by_id(id: int) -> SingleResult:
 
     return user 
 
-def get_user(
-    user_detail: (
-        schemas.UserGetById | 
-        schemas.UserGetByEmail
-    )
-) -> SingleResult:
+
+
+def get_all_users() -> DBResult:
     
-    email_sql: str = "select * from users where email_id = %(email_id)s;"
-    id_sql: str = "select * from users where id = %(id)s;"
-
-    sql: str = email_sql if isinstance(user_detail, schemas.UserGetByEmail) else id_sql
-    
-    user = db_manager.execute_select_statement(
-        sql, 
-        vars = user_detail.model_dump(),
-        fetch_all = False 
-    )
-
-    return user
-
-
-
-def get_all_users():
     sql: str = "select * from users;"
     
     users = db_manager.execute_select_statement(sql)
@@ -58,7 +47,7 @@ def get_all_users():
 
 def insert_user(
     user: schemas.UserCreate
-):
+) -> RealDictRow:
     
     sql: str = """
         insert into users(
@@ -71,6 +60,9 @@ def insert_user(
         ;
     """  
 
+    # Strip the email id and lower case it for consistency.
+    user.email_id = standardize_email(user.email_id)
+    
     new_user: SingleResult = db_manager.execute_sql_command(
         sql,
         vars = user.model_dump(exclude = {"confirm_password"}),
@@ -82,11 +74,15 @@ def insert_user(
 
 
     
-def delete_user(user: schemas.UserId):
+def delete_user(id: int) -> SingleResult:
 
     sql: str = "delete from users where id = %(id)s returning * ;"
 
-    deleted_user: SingleResult = db_manager.execute_sql_command(sql, user.model_dump())
+    deleted_user: SingleResult = db_manager.execute_sql_command(
+        sql, 
+        {"id": id},
+        fetch = True
+    )
 
     return deleted_user
 

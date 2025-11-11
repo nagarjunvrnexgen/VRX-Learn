@@ -1,12 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header, Security
 from fastapi.responses import StreamingResponse
 from google.oauth2 import service_account
 from google.auth.transport import requests as google_requests
 import httpx
 from typing import Annotated
-from fastapi import Header
 from pydantic import BaseModel
 from configs import settings
+from presentation_layer.auth import get_current_user_from_cookie
+
 
 
 class InputHeader(BaseModel):
@@ -30,14 +31,15 @@ ACCESS_TOKEN = creds.token
 
 video_streaming_router = APIRouter(
     prefix = "/video/stream",
-    tags = ["Video Streaming"]
+    tags = ["Video Streaming"],
+    dependencies = [Security(get_current_user_from_cookie)]
 )
 
 
 @video_streaming_router.get("/{file_id}")
 async def stream_video(
     file_id: str, 
-    request_header: Annotated[InputHeader, Header()] 
+    request_header: Annotated[InputHeader, Header()]
 ):
     
     print(f"Range Header is {request_header.range}")

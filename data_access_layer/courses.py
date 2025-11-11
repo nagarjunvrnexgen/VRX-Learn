@@ -1,9 +1,9 @@
 import schemas
-from database import db_manager, SingleResult
+from database import db_manager, SingleResult, DBResult
+from psycopg2.extras import RealDictRow
 
 
-
-def insert_course(course: schemas.CourseCreate):
+def insert_course(course: schemas.CourseCreate) -> RealDictRow:
     
     sql: str = """
         insert into courses(
@@ -24,34 +24,38 @@ def insert_course(course: schemas.CourseCreate):
 
 
 
-def get_all_courses():
+def get_all_courses() -> DBResult:
 
     sql: str = """
         select * from courses;
     """
 
-    course = db_manager.execute_select_statement(sql)
+    course = db_manager.execute_select_statement(sql, fetch_all = True)
 
     return course
 
 
-def get_course(course: schemas.CourseID):
+def get_course_by_id(id: int) -> SingleResult:
     
     sql: str = "select * from courses where id = %(id)s;"
 
-    requested_course: SingleResult = db_manager.execute_select_statement(sql, course.model_dump(), fetch_all = False) #type: ignore
+    requested_course: SingleResult = db_manager.execute_select_statement(
+        sql, 
+        {"id": id}, 
+        fetch_all = False
+    )
 
     return requested_course
 
 
 
-def delete_course(course: schemas.CourseID):
+def delete_course(id: int) -> SingleResult:
 
     sql: str = "delete from courses where id = %(id)s returning * ;"
 
     deleted_course: SingleResult = db_manager.execute_sql_command(
         sql,
-        course.model_dump(),
+        {"id": id},
         fetch = True
     )
 

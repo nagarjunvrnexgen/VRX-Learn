@@ -1,35 +1,45 @@
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status, HTTPException, Security
 import service_layer.modules as module_services
 import schemas
 import exceptions
+from presentation_layer.auth import get_current_admin_from_cookie
 
 module_router = APIRouter(
     prefix = "/modules",
-    tags = ["Modules"]
+    tags = ["Modules"],
+    dependencies = [Security(get_current_admin_from_cookie)]
 )
 
 
-@module_router.get("/")
+@module_router.get(
+    "/",
+    response_model = list[schemas.Module]
+)
 async def modules():
     return module_services.list_all_modules()
 
 
-@module_router.get("/{module_id}")
+@module_router.get(
+    "/{module_id}",
+    response_model = schemas.Module
+)
 async def get_module(module_id: int):
     try:
-        requested_module = module_services.fetch_module(
-            schemas.ModuleId(id = module_id)
-        )
+        requested_module = module_services.fetch_module_by_id(module_id)
         return requested_module 
     
     except exceptions.CourseModuleNotFoundError: 
         raise HTTPException(
             status_code = status.HTTP_400_BAD_REQUEST,
-            detail = "No module found with this course id."
+            detail = f"Module with Id {module_id} does not exist"
         )
 
 
-@module_router.post("/new")
+@module_router.post(
+    "/",
+    response_model = schemas.Module,
+    status_code = status.HTTP_201_CREATED
+)
 async def create_module(module: schemas.ModuleCreate):
     try:
         new_module = module_services.add_module(module)
@@ -38,25 +48,24 @@ async def create_module(module: schemas.ModuleCreate):
     except exceptions.CourseNotFoundError: 
         raise HTTPException(
             status_code = status.HTTP_400_BAD_REQUEST,
-            detail = "No course found with this course id."
+            detail = f"Course with Id {module.course_id} does not exist"
         )
     
 
-@module_router.delete("/{module_id}")
+@module_router.delete(
+    "/{module_id}",
+    status_code = status.HTTP_204_NO_CONTENT
+)
 async def delete_module(module_id: int):
     try: 
-        deleted_module = module_services.remove_module(
-            schemas.ModuleId(
-                id = module_id
-            )
-        ) 
-
-        return deleted_module
+        
+        deleted_module = module_services.remove_module(module_id)
+        return
     
     except exceptions.CourseModuleNotFoundError: 
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
-            detail = f"No module found with this Id: {module_id}"
+            detail = f"Module with Id {module_id} does not exist"
         )
 
 
