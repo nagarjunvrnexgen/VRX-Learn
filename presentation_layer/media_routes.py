@@ -29,14 +29,14 @@ creds.refresh(auth_request)
 ACCESS_TOKEN = creds.token
 
 
-video_streaming_router = APIRouter(
-    prefix = "/video/stream",
-    tags = ["Video Streaming"],
+media_router = APIRouter(
+    prefix = "/media",
+    tags = ["Media"],
     dependencies = [Security(get_current_user_from_cookie)]
 )
 
 
-@video_streaming_router.get("/{file_id}")
+@media_router.get("/video/{file_id}")
 async def stream_video(
     file_id: str, 
     request_header: Annotated[InputHeader, Header()]
@@ -88,7 +88,43 @@ async def stream_video(
     )
 
 
+
+
+@media_router.get("/pdf/{file_id}")
+async def stream_pdf(file_id: str):
     
+    url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
+    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
+
+    client = httpx.AsyncClient(timeout = None)
+    request = httpx.Request("GET", url, headers = headers)
+    response: httpx.Response = await client.send(request, stream = True)
+
+    if response.status_code != 200:
+        
+        print(f"Status code is {response.status_code}")
+        await response.aclose()
+        raise HTTPException(
+            status_code = response.status_code, 
+            detail = "Error fetching PDF from Drive"
+        )
+
+    async def iterfile():
+        try:
+            async for chunk in response.aiter_bytes(chunk_size = 1024 * 256):
+                yield chunk
+        finally:
+            await response.aclose()
+            await client.aclose()
+
+    return StreamingResponse(
+        iterfile(),
+        media_type = "application/pdf",
+        headers = {
+            "Content-Disposition": "inline",  
+        },
+    )
+
 
 
         

@@ -46,9 +46,17 @@ async def get_course(course_id: int):
 )
 async def create_course(course: schemas.CourseCreate):
    
-    new_course = course_services.add_course(course)
+    try: 
+        
+        new_course = course_services.add_course(course)
 
-    return new_course
+        return new_course
+    
+    except exceptions.CourseNameAlreadyFoundError:
+        raise HTTPException(
+            status_code = status.HTTP_409_CONFLICT,
+            detail = f"Course already found with this name {course.name}"
+        )
 
 
 

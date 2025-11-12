@@ -41,6 +41,7 @@ async def get_module(module_id: int):
     status_code = status.HTTP_201_CREATED
 )
 async def create_module(module: schemas.ModuleCreate):
+    
     try:
         new_module = module_services.add_module(module)
         return new_module 
@@ -49,6 +50,12 @@ async def create_module(module: schemas.ModuleCreate):
         raise HTTPException(
             status_code = status.HTTP_400_BAD_REQUEST,
             detail = f"Course with Id {module.course_id} does not exist"
+        )
+        
+    except exceptions.ModuleNameAlreadyFoundError:
+        raise HTTPException(
+            status_code = status.HTTP_409_CONFLICT,
+            detail = f"Module already found with the name {module.name} in the course."
         )
     
 

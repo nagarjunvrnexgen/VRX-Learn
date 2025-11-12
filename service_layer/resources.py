@@ -35,10 +35,21 @@ def add_resource(
     module = module_repo.get_module_by_id(
         resource.module_id
     )
-
+    
     if not module:
         raise exceptions.CourseModuleNotFoundError(
-            f"Module with ID {resource.module_id} does not exist"
+        f"Module with ID {resource.module_id} does not exist"
+    )
+        
+    # Check the resource name already exist in module.
+    existed_resource = resource_repo.get_resource_by_name_and_module_id(
+        name = resource.name,
+        module_id = resource.module_id
+    )
+    
+    if existed_resource:
+        raise exceptions.ResourceNameAlreadyFoundError(
+            f"Resource already found with the name {resource.name} in this module"
         )
     
     new_resource = resource_repo.insert_resource(resource)

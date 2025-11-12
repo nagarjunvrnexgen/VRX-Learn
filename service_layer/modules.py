@@ -1,5 +1,5 @@
 import data_access_layer.modules as module_repo
-from service_layer.courses import fetch_course_by_id
+import data_access_layer.courses as courses_repo
 import schemas
 import exceptions
 from psycopg2.extras import RealDictRow
@@ -32,11 +32,22 @@ def add_module(
 ) -> RealDictRow:
 
     # Check course exist with given course id.
-    course_to_add_module = fetch_course_by_id(module.course_id)
+    course_to_add_module = courses_repo.get_course_by_id(module.course_id)
 
     if not course_to_add_module:
         raise exceptions.CourseNotFoundError(
             f"Course with ID {module.course_id} does not exist"
+        )
+    
+    # Check whether the module name already exist in the course. 
+    existed_module = module_repo.get_module_by_name_and_course_id(
+        name = module.name,
+        course_id = module.course_id
+    )
+    
+    if existed_module:
+        raise exceptions.ModuleNameAlreadyFoundError(
+            f"Module already found with this name {module.name} in the course"
         )
     
     new_module = module_repo.insert_module(module)

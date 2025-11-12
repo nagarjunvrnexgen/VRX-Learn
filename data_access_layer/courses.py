@@ -49,6 +49,19 @@ def get_course_by_id(id: int) -> SingleResult:
 
 
 
+def get_course_by_name(name: str) -> SingleResult:
+    
+    sql: str = "select * from courses where name = %(name)s;"
+
+    course = db_manager.execute_select_statement(
+        sql,
+        {"name": name},
+        fetch_all = False
+    )
+    print(course)
+    return course 
+
+
 def delete_course(id: int) -> SingleResult:
 
     sql: str = "delete from courses where id = %(id)s returning * ;"

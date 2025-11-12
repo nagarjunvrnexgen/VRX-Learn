@@ -25,6 +25,24 @@ def get_resource_by_id(id: int) -> SingleResult:
     return requested_resource
 
 
+def get_resource_by_name_and_module_id(
+    name: str,
+    module_id: int
+) -> SingleResult:
+    
+    sql: str = """select * from resources where name = %(name)s and module_id = %(module_id)s;"""
+    
+    resource = db_manager.execute_select_statement(
+        sql,
+        {
+            "name": name,
+            "module_id": module_id
+        },
+        fetch_all = False
+    )
+    
+    return resource
+
 
 def insert_resource(
     resource: schemas.ResourceCreate

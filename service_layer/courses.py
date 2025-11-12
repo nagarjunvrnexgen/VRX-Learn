@@ -1,4 +1,5 @@
 import data_access_layer.courses as course_repo
+from database import SingleResult
 import schemas
 import exceptions
 from psycopg2.extras import RealDictRow
@@ -10,12 +11,15 @@ def add_course(
 ) -> RealDictRow:
 
     # Need to implement duplicate course name check.
-    try: 
-        new_course = course_repo.insert_course(course)
-        return new_course
+    existed_course = course_repo.get_course_by_name(course.name)
+    if existed_course:
+        raise exceptions.CourseNameAlreadyFoundError(
+            f"Course already found with this name {course.name}"
+        )
     
-    except Exception as e:
-        print(f"Unexpected Error occur: {str(e)}")
+    new_course = course_repo.insert_course(course)
+    
+    return new_course
 
 
 

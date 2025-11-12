@@ -5,7 +5,8 @@ from presentation_layer.module_routes import module_router
 from presentation_layer.resource_routes import resource_router
 from presentation_layer.enrollment_routes import enrollment_router
 from presentation_layer.auth import auth_router
-from presentation_layer.video_stream_routes import video_streaming_router
+from presentation_layer.media_routes import media_router
+from presentation_layer.course_report_routes import course_reports_router
 from contextlib import asynccontextmanager
 from database import db_manager
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,9 +48,5 @@ app.include_router(course_router)
 app.include_router(module_router)
 app.include_router(resource_router)
 app.include_router(enrollment_router)
-app.include_router(video_streaming_router)
-
-
-
-
-
+app.include_router(media_router)
+app.include_router(course_reports_router)

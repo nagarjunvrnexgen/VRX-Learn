@@ -51,6 +51,25 @@ def get_module_by_id(id: int) -> SingleResult:
     return requested_module
 
 
+def get_module_by_name_and_course_id(
+    name: str,
+    course_id: int
+) -> SingleResult:
+    
+    sql: str = """select * from modules where name = %(name)s and course_id = %(course_id)s;"""
+    
+    module = db_manager.execute_select_statement(
+        sql,
+        {
+            "name": name,
+            "course_id": course_id
+        },
+        fetch_all = False
+    )
+    
+    return module
+    
+
 def get_all_modules() -> DBResult:
     
     sql: str = """select * from modules;"""
