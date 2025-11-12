@@ -17,7 +17,7 @@ course_router = APIRouter(
     "/", 
     response_model = list[schemas.Course]
 )
-async def courses():
+def get_courses():
     courses = course_services.list_all_courses()
     return courses
 
@@ -26,7 +26,7 @@ async def courses():
     "/{course_id}", 
     response_model = schemas.Course
 )
-async def get_course(course_id: int):
+def get_course(course_id: int):
     try: 
         course = course_services.fetch_course_by_id(course_id) 
 
@@ -44,7 +44,7 @@ async def get_course(course_id: int):
     response_model = schemas.Course, 
     status_code = status.HTTP_201_CREATED
 )
-async def create_course(course: schemas.CourseCreate):
+def create_course(course: schemas.CourseCreate):
    
     try: 
         
@@ -64,7 +64,7 @@ async def create_course(course: schemas.CourseCreate):
     "/{course_id}",
     status_code = status.HTTP_204_NO_CONTENT
 )
-async def delete_course(course_id: int):
+def delete_course(course_id: int):
     try:
         deleted_course = course_services.remove_course(course_id)
         return 

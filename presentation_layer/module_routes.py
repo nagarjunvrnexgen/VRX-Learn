@@ -15,7 +15,7 @@ module_router = APIRouter(
     "/",
     response_model = list[schemas.Module]
 )
-async def modules():
+def get_modules():
     return module_services.list_all_modules()
 
 
@@ -23,7 +23,7 @@ async def modules():
     "/{module_id}",
     response_model = schemas.Module
 )
-async def get_module(module_id: int):
+def get_module(module_id: int):
     try:
         requested_module = module_services.fetch_module_by_id(module_id)
         return requested_module 
@@ -40,7 +40,7 @@ async def get_module(module_id: int):
     response_model = schemas.Module,
     status_code = status.HTTP_201_CREATED
 )
-async def create_module(module: schemas.ModuleCreate):
+def create_module(module: schemas.ModuleCreate):
     
     try:
         new_module = module_services.add_module(module)
@@ -63,7 +63,7 @@ async def create_module(module: schemas.ModuleCreate):
     "/{module_id}",
     status_code = status.HTTP_204_NO_CONTENT
 )
-async def delete_module(module_id: int):
+def delete_module(module_id: int):
     try: 
         
         deleted_module = module_services.remove_module(module_id)

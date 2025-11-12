@@ -15,7 +15,7 @@ resource_router = APIRouter(
     "/",
     response_model = list[schemas.Resource],
 )
-async def get_resources():    
+def get_resources():    
     resources = resource_services.list_all_resource()
     return resources
 
@@ -25,7 +25,7 @@ async def get_resources():
     "/{resource_id}",
     response_model = schemas.Resource
 )
-async def get_resource(resource_id: int):
+def get_resource(resource_id: int):
     
     try: 
         resource = resource_services.fetch_resource_by_id(resource_id)
@@ -43,7 +43,7 @@ async def get_resource(resource_id: int):
     response_model = schemas.Resource,
     status_code = status.HTTP_201_CREATED
 )
-async def create_resource(resource: schemas.ResourceCreate):
+def create_resource(resource: schemas.ResourceCreate):
     
     try: 
         
@@ -62,7 +62,7 @@ async def create_resource(resource: schemas.ResourceCreate):
     "/{resource_id}",
     status_code = status.HTTP_204_NO_CONTENT
 )
-async def delete_resource(resource_id: int):
+def delete_resource(resource_id: int):
     
     try:
         

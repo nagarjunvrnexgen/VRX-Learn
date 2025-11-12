@@ -17,7 +17,7 @@ enrollment_router = APIRouter(
     "/",
     response_model = list[schemas.Enrollment]
 )
-async def enrollments():
+def get_enrollments():
     return enrollment_services.list_all_enrollments()
 
 
@@ -26,7 +26,7 @@ async def enrollments():
     "/{enrollment_id}",
     response_model = schemas.Enrollment
 )
-async def get_enrollment(enrollment_id: int):
+def get_enrollment(enrollment_id: int):
 
     try:
         
@@ -46,7 +46,7 @@ async def get_enrollment(enrollment_id: int):
     "/{enrollment_id}",
     status_code = status.HTTP_204_NO_CONTENT
 )
-async def delete_enrollment(
+def delete_enrollment(
     enrollment_id: int
 ):
     try:
@@ -67,7 +67,7 @@ async def delete_enrollment(
     response_model = schemas.Enrollment,
     status_code = status.HTTP_201_CREATED
 )
-async def create_enrollment(enrollment: schemas.EnrollmentCreate):
+def create_enrollment(enrollment: schemas.EnrollmentCreate):
 
     try:
     

@@ -17,7 +17,7 @@ user_router = APIRouter(
     "/", 
     response_model = list[schemas.User]
 )
-async def users():
+def get_users():
     return user_services.list_all_users()
 
 
@@ -26,7 +26,7 @@ async def users():
     "/{user_id}", 
     response_model = schemas.User
 )
-async def get_user(user_id: int):
+def get_user(user_id: int):
     
     try:
     
@@ -46,7 +46,7 @@ async def get_user(user_id: int):
     response_model = schemas.User,
     status_code = status.HTTP_201_CREATED
 )
-async def create_new_user(user: schemas.UserCreate):
+def create_user(user: schemas.UserCreate):
    
     try:
        new_user = user_services.register_user(user)
@@ -70,7 +70,7 @@ async def create_new_user(user: schemas.UserCreate):
     "/{user_id}",
     status_code = status.HTTP_204_NO_CONTENT
 )
-async def delete_user(user_id: int):
+def delete_user(user_id: int):
     try:
         deleted_user = user_services.remove_user(user_id)
         return
