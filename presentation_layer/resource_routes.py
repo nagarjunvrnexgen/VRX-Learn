@@ -57,6 +57,12 @@ def create_resource(resource: schemas.ResourceCreate):
             detail = f"Module with Id {resource.module_id} does not exist"
         )
     
+    except exceptions.ResourceNameAlreadyFoundError:
+        raise HTTPException(
+            status_code = status.HTTP_409_CONFLICT,
+            detail = f"Resource already found with the name {resource.name} in the course."
+
+        )
 
 @resource_router.delete(
     "/{resource_id}",
