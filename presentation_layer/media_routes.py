@@ -2,12 +2,14 @@ from fastapi import APIRouter, HTTPException, Header, Security
 from fastapi.responses import StreamingResponse
 from google.oauth2 import service_account
 from google.auth.transport import requests as google_requests
+from google.auth.credentials import TokenState
 import httpx
 from typing import Annotated
 from pydantic import BaseModel
 from configs import settings
 from presentation_layer.auth import get_current_user_from_cookie
-
+from datetime import datetime, timedelta
+import asyncio
 
 
 class InputHeader(BaseModel):
@@ -24,9 +26,27 @@ creds = service_account.Credentials.from_service_account_info(
     scopes = SCOPES
 )
 
-auth_request = google_requests.Request()
-creds.refresh(auth_request)
-ACCESS_TOKEN = creds.token
+
+ACCESS_TOKEN: str | None = None
+
+
+
+def refresh_token():    
+    
+    global ACCESS_TOKEN
+    
+    try: 
+        
+        if not ACCESS_TOKEN or creds.token_state != TokenState.FRESH:
+            auth_request = google_requests.Request()
+            creds.refresh(auth_request)
+            ACCESS_TOKEN = creds.token
+            
+    except Exception as e:
+        print("Unexpected error occur while refreshing the token.")
+        print(str(e))
+        raise e
+        
 
 
 media_router = APIRouter(
@@ -47,6 +67,9 @@ async def stream_video(
     url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
     
     # Prepare request header to fetch video from Drive.
+    
+    await asyncio.to_thread(refresh_token)
+    
     headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
 
     if request_header.range:
@@ -94,6 +117,9 @@ async def stream_video(
 async def stream_pdf(file_id: str):
     
     url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
+    
+    await asyncio.to_thread(refresh_token)
+    
     headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
 
     client = httpx.AsyncClient(timeout = None)
