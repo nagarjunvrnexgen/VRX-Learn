@@ -3,7 +3,7 @@ import data_access_layer.courses as courses_repo
 import schemas
 import exceptions
 from psycopg2.extras import RealDictRow
-
+from psycopg2.errors import ForeignKeyViolation
 
 
 def fetch_module_by_id(
@@ -60,14 +60,19 @@ def remove_module(
     id: int
 ) -> RealDictRow:
     
-    deleted_module = module_repo.delete_module(id)
+    try:
+        deleted_module = module_repo.delete_module(id)
 
-    if not deleted_module:
-        raise exceptions.CourseModuleNotFoundError(
-            f"Module with ID {id} does not exist"
+        if not deleted_module:
+            raise exceptions.CourseModuleNotFoundError(
+                f"Module with ID {id} does not exist"
+            )
+
+        return deleted_module
+
+    except ForeignKeyViolation:
+        raise exceptions.ModuleHasResourcesError(
+            f"Module with ID {id} has associated resources and cannot be deleted"
         )
-
-    return deleted_module
-
 
 

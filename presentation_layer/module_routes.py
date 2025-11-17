@@ -75,5 +75,9 @@ def delete_module(module_id: int):
             detail = f"Module with Id {module_id} does not exist"
         )
 
-
+    except exceptions.ModuleHasResourcesError:
+        raise HTTPException(
+            status_code = status.HTTP_409_CONFLICT,
+            detail = f"Module with ID {module_id} has associated resources and cannot be deleted"
+        )
 

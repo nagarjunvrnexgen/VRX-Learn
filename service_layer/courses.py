@@ -3,6 +3,8 @@ from database import SingleResult
 import schemas
 import exceptions
 from psycopg2.extras import RealDictRow
+from psycopg2.errors import ForeignKeyViolation
+
 
 
 
@@ -27,14 +29,20 @@ def remove_course(
     id: int
 ) -> RealDictRow:
 
-    deleted_course = course_repo.delete_course(id)
+    try:
+        deleted_course = course_repo.delete_course(id)
     
-    if not deleted_course:
-        raise exceptions.CourseNotFoundError(
-            f"Course with ID {id} does not exist"
+        if not deleted_course:
+            raise exceptions.CourseNotFoundError(
+                f"Course with ID {id} does not exist"
+            )
+        
+        return deleted_course
+    
+    except ForeignKeyViolation:
+        raise exceptions.CourseHasModulesError(
+            f"Course with ID {id} has associated modules and cannot be deleted"
         )
-    
-    return deleted_course
 
 
 def fetch_course_by_id(

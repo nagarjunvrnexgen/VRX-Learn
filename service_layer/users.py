@@ -4,6 +4,7 @@ from utils import get_hash_password
 from database import SingleResult
 import exceptions
 from psycopg2.extras import RealDictRow
+from psycopg2.errors import ForeignKeyViolation
 
 
 
@@ -71,16 +72,20 @@ def remove_user(
     id: int
 ) -> RealDictRow:
     
-    deleted_user: SingleResult = user_repo.delete_user(id)
+    try:
+        deleted_user: SingleResult = user_repo.delete_user(id)
 
-    if not deleted_user:
-        raise exceptions.UserNotFoundError(
-            f"User with ID {id} does not exist"
+        if not deleted_user:
+            raise exceptions.UserNotFoundError(
+                f"User with ID {id} does not exist"
+            )
+        
+        return deleted_user
+
+    except ForeignKeyViolation:
+        raise exceptions.UserHasDataError(
+            f"User with ID {id} has associated data and cannot be deleted"
         )
-    
-    return deleted_user
-
-
 
 
 

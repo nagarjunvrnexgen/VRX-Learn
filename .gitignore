@@ -11,3 +11,4 @@ wheels/
 .env
 service_account.json
 .ipynb
+architecture_doubts/

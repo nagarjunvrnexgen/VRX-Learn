@@ -72,6 +72,7 @@ def create_user(user: schemas.UserCreate):
 )
 def delete_user(user_id: int):
     try:
+        
         deleted_user = user_services.remove_user(user_id)
         return
     
@@ -81,5 +82,10 @@ def delete_user(user_id: int):
             detail = f"User with Id {user_id} does not exist"
         )
     
+    except exceptions.UserHasDataError:
+        raise HTTPException(
+            status_code = status.HTTP_409_CONFLICT,
+            detail = f"User with ID {user_id} has associated data and cannot be deleted"
+        )
 
 

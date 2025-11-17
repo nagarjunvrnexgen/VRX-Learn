@@ -66,6 +66,7 @@ def create_course(course: schemas.CourseCreate):
 )
 def delete_course(course_id: int):
     try:
+        
         deleted_course = course_services.remove_course(course_id)
         return 
     
@@ -75,3 +76,8 @@ def delete_course(course_id: int):
             detail = f"Course with Id {course_id} does not exist."
         )
     
+    except exceptions.CourseHasModulesError:
+        raise HTTPException(
+            status_code = status.HTTP_409_CONFLICT,
+            detail = f"Course with Id {course_id} has associated modules and cannot be deleted."
+        )
