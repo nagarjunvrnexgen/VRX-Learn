@@ -10,7 +10,7 @@ def get_enrolled_courses(
     
     sql: str = """
         select 
-            *
+            c.*
         from 
             courses as c
         join 
