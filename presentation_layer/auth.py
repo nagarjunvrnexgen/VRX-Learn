@@ -1,7 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from fastapi import APIRouter, Cookie, HTTPException, status, Depends, Response, Security
-# from fastapi.security import OAuth2PasswordBearer
-from fastapi.security.oauth2 import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Cookie, HTTPException, status, Response, Security
 from psycopg2.extras import RealDictRow
 from database import SingleResult
 import service_layer.auth as auth_services
@@ -19,8 +17,6 @@ auth_router = APIRouter(
 )
 
 
-
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
 def get_current_user_from_cookie(
@@ -58,61 +54,6 @@ def get_current_user_from_cookie(
 
 
 
-
-# def get_current_user(
-#     access_token: Annotated[
-#         str, 
-#         Security(oauth2_scheme)
-#     ]
-# ) -> schemas.TokenData:
-
-#     # Define credential Exception.
-#     credential_exception = HTTPException(
-#         status_code = status.HTTP_401_UNAUTHORIZED,
-#         detail = "Could not validate your credentials",
-#         headers = {
-#             "WWW-Authenticate": "Bearer"
-#         }
-#     )
-#     # Decode the token.
-#     try:
-#         decoded_token: auth_services.Payload = auth_services.decode_access_token(access_token)
-#         user_id = decoded_token.get("user_id")
-
-#         if not user_id:
-#             raise credential_exception
-        
-#         user = user_services.fetch_user_by_id(user_id = user_id)
-
-#         if not user:
-#             raise credential_exception
-
-#         return schemas.TokenData(
-#             user_id = user.get("id"),
-#             role = user.get("role")
-#         )
-
-#     except exceptions.TokenInvalidOrExpiredError:
-#         raise credential_exception
-
-
-
-# def get_current_admin(
-#     user: Annotated[
-#         schemas.TokenData, 
-#         Security(get_current_user)
-#     ]
-# ):
-
-#     if user.role != "admin":
-#         raise HTTPException(
-#             status_code = status.HTTP_403_FORBIDDEN,
-#             detail = "Admin required."
-#         )
-
-#     return user
-
-
 def get_current_admin_from_cookie(
     user: Annotated[
         schemas.TokenData,
@@ -130,18 +71,13 @@ def get_current_admin_from_cookie(
 
 
 @auth_router.post("/login")
-async def authenticate(
-    form: Annotated[
-        OAuth2PasswordRequestForm, 
-        Depends()
-    ]
-):
+async def authenticate(form: schemas.UserLogin):
 
     try:
         #Authenticate the user.
         authenticated_user: RealDictRow = auth_services.authenticate_user(
             user = schemas.UserLogin(
-                email_id = form.username,
+                email_id = form.email_id,
                 password = form.password
             )
         )
@@ -154,11 +90,7 @@ async def authenticate(
             )
         )
 
-        # return schemas.Token(
-        #     access_token = access_token,
-        #     token_type = "Bearer"
-        # )
-        
+        # Set the token in cookie.        
         response = Response(content = "You've successfully logged in.", media_type = "text/plain")
         response.set_cookie(
             key = "access_token",
@@ -215,22 +147,4 @@ async def my_cred_from_cookie(
         "email_id": data["email_id"],
         "fullname": data["fullname"]
     }
-
-
-
-# @auth_router.get("/me")
-# async def my_cred_from_header(
-#     user: Annotated[
-#         schemas.TokenData, 
-#         Security(get_current_user)
-#     ]
-# ):
-
-#     # Fetch the user details.
-#     data: SingleResult = user_services.fetch_user_by_id(user.user_id)
-    
-#     return {
-#         "email_id": data["email_id"],
-#         "full_name": data["fullname"]
-#     }
-    
+ 
