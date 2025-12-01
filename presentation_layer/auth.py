@@ -71,7 +71,7 @@ def get_current_admin_from_cookie(
 
 
 @auth_router.post("/login")
-async def authenticate(form: schemas.UserLogin):
+def authenticate(form: schemas.UserLogin):
 
     try:
         #Authenticate the user.
@@ -115,7 +115,7 @@ async def authenticate(form: schemas.UserLogin):
 
 
 @auth_router.post("/logout")
-async def logout():
+def logout():
     
     response = Response(
         content = "You've logged out successfully",
@@ -133,7 +133,7 @@ async def logout():
 
 
 @auth_router.get("/me")
-async def my_cred_from_cookie(
+def my_cred_from_cookie(
     user: Annotated[
         schemas.TokenData, 
         Security(get_current_user_from_cookie)
@@ -145,6 +145,7 @@ async def my_cred_from_cookie(
     
     return {
         "email_id": data["email_id"],
-        "fullname": data["fullname"]
+        "fullname": data["fullname"],
+        "role": data["role"]
     }
  
