@@ -18,4 +18,5 @@ dependencies = [
     "google-auth-oauthlib>=1.2.2",
     "pyjwt>=2.10.1",
     "ipykernel>=7.1.0",
+    "fastapi-pagination>=0.15.0",
 ]

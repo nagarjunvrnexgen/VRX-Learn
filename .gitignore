@@ -12,3 +12,5 @@ wheels/
 service_account.json
 .ipynb
 architecture_doubts/
+notebooks
+.vscode

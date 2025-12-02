@@ -1,6 +1,7 @@
 import service_layer.course_reports as course_report_services
 from presentation_layer.auth import get_current_user_from_cookie
 from fastapi import Security, APIRouter, HTTPException, status
+from fastapi_pagination import Page, paginate
 from typing import Annotated
 import schemas  
 import exceptions
@@ -15,7 +16,7 @@ course_reports_router = APIRouter(
 
 @course_reports_router.get(
     "/my_courses", 
-    response_model = list[schemas.Course]
+    response_model = Page[schemas.Course]
 )
 def get_enrolled_couses(
     user: Annotated[
@@ -23,13 +24,17 @@ def get_enrolled_couses(
         Security(get_current_user_from_cookie)
     ]
 ):
-    return course_report_services.fetch_enrolled_courses(user.user_id)
+    return paginate(
+        course_report_services.fetch_enrolled_courses(
+            user.user_id
+        )
+    )
     
 
 
 @course_reports_router.get(
     "/all_courses", 
-    response_model = list[schemas.Course]
+    response_model = Page[schemas.Course]
 )
 def get_all_courses(
     user: Annotated[
@@ -37,7 +42,7 @@ def get_all_courses(
         Security(get_current_user_from_cookie)
     ]
 ):
-    return course_report_services.fetch_all_courses()
+    return paginate(course_report_services.fetch_all_courses())
 
 
 @course_reports_router.get(

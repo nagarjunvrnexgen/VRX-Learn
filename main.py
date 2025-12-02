@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager
 from database import db_manager
 from fastapi.middleware.cors import CORSMiddleware
 from configs import settings
+from fastapi_pagination import add_pagination
 
 
 
@@ -32,7 +33,8 @@ app = FastAPI(
     lifespan = lifespan
 )
 
-
+# Add Basic Pagination Support using fastapi-pagination.
+add_pagination(app)
 app.add_middleware(
     CORSMiddleware,
     allow_origins = settings.cors.allowed_origins,

@@ -1,8 +1,10 @@
+from typing import Annotated
 from fastapi import HTTPException, APIRouter, status, Security
 import schemas
 import service_layer.users as user_services
 import exceptions
 from presentation_layer.auth import get_current_admin_from_cookie
+from fastapi_pagination import Page, paginate
 
 
 
@@ -15,10 +17,10 @@ user_router = APIRouter(
 
 @user_router.get(
     "/", 
-    response_model = list[schemas.User]
+    response_model = Page[schemas.User]
 )
 def get_users():
-    return user_services.list_all_users()
+    return paginate(user_services.list_all_users())
 
 
 
