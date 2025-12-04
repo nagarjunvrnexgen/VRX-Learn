@@ -98,3 +98,10 @@ def remove_enrollment(
     
     return deleted_enrollment 
 
+
+def fetch_enrollments() -> list[RealDictRow]:
+    
+    enrollments = enrollement_repo.get_enrollments()
+    
+    return enrollments
+

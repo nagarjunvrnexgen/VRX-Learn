@@ -21,6 +21,14 @@ def get_enrollments():
     return enrollment_services.list_all_enrollments()
 
 
+@enrollment_router.get(
+    "/aggregated",
+    response_model = list[schemas.EnrollmentAggregated]
+)
+def get_enrollments():
+    return enrollment_services.fetch_enrollments()
+
+
 
 @enrollment_router.get(
     "/{enrollment_id}",

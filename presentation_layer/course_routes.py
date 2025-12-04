@@ -81,3 +81,22 @@ def delete_course(course_id: int):
             status_code = status.HTTP_409_CONFLICT,
             detail = f"Course with Id {course_id} has associated modules and cannot be deleted."
         )
+
+
+@course_router.get(
+    "/{course_id}/full_details"
+)
+def get_modules_and_resources_in_course(course_id: int):
+    
+    try: 
+        modules_and_resources_in_course = course_services.fetch_modules_and_resource_by_course_id(course_id)
+        
+        return modules_and_resources_in_course
+    
+    except exceptions.CourseNotFoundError:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = f"Course with Id {course_id} does not exist."
+        )
+        
+    

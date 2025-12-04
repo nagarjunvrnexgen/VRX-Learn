@@ -67,3 +67,61 @@ def list_all_courses() -> list[RealDictRow]:
 
 
 
+def fetch_modules_and_resource_by_course_id(
+    course_id: int
+) -> list[RealDictRow]:
+    
+    # check whether the course exist.
+    course = course_repo.get_course_by_id(course_id)
+    
+    if not course:
+        raise exceptions.CourseNotFoundError(
+            f"Course with Id {course_id} does not exist"
+        )
+        
+    
+    def build_course_structure(data: list[RealDictRow]):
+        course = None 
+        modules: dict = {}
+        
+        # Prepare course only once.
+        for d in data:
+            if not course:
+                course = {
+                    "id": d["id"],
+                    "name": d["name"],
+                    "author": d["author"],
+                    "description": d["description"]
+                }
+            
+            module_id = d["module_id"]
+            if module_id not in modules:
+                modules[module_id] = {
+                    "id": module_id,
+                    "name": d["module_name"],
+                    "resources": [] # Initally empty list.
+                }        
+
+            resource_id = d["resource_id"]
+            resource = {
+                "id": resource_id,
+                "name": d["resource_name"],
+                "file_type": d["resource_file_type"],
+                "type": d["resource_type"],
+                "url": d["resource_url"]
+            }
+            
+            modules[module_id]["resources"].append(resource)
+            
+        course["modules"] = list(modules.values())
+            
+        return course
+    
+    modules_and_resources = course_repo.get_modules_and_resources_by_course_id(course_id)
+    
+    modules_and_resources = build_course_structure(modules_and_resources) if modules_and_resources else {}
+    
+    return modules_and_resources
+
+
+

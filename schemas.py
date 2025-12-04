@@ -103,5 +103,12 @@ class Enrollment(EnrollmentCreate):
     enrolled_at: datetime
 
 
+class EnrollmentAggregated(BaseModel):
+    id: int
+    user_id: int
+    username: str
+    course_id: int
+    course_name: str
+    enrolled_at: datetime
 
 

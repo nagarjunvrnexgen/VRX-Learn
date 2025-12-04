@@ -79,3 +79,33 @@ def delete_enrollment(id: int) -> SingleResult:
 
     return deleted_enrollment
 
+
+def get_enrollments() -> list[RealDictRow]:
+    
+    sql: str = """
+        select
+            e.id as id,
+            u.id as user_id,
+            u.fullname as username,
+            c.id as course_id,
+            c.name as course_name,
+            e.enrolled_at as enrolled_at
+        from 
+            enrollments as e
+        join 
+            users as u 
+        on 
+            e.user_id = u.id
+        join 
+            courses as c
+        on 
+            e.course_id = c.id
+        ;       
+    """
+    
+    enrollments = db_manager.execute_select_statement(
+        sql,
+        fetch_all = True
+    )
+    
+    return enrollments
