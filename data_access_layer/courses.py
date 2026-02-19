@@ -94,11 +94,11 @@ def get_modules_and_resources_by_course_id(
             r.url as resource_url
         from 
             courses as c
-        join 
+        left join 
             modules as m 
         on 
             c.id = m.course_id
-        join 
+        left join 
             resources as r 
         on 
             m.id = r.module_id
